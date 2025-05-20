@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Top 5 Lig Maçları</title>
+    <style>
+        body { font-family: Arial; background: #f2f2f2; padding: 20px; }
+        .fixture { background: #fff; padding: 15px; margin-bottom: 10px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>90+ Maç Sitesi</h1>
+
+    {% for league_data in all_fixtures %}
+        <h2>{{ league_data.league }}</h2>
+        {% for match in league_data.matches %}
+            <div class="fixture">
+                <strong>{{ match.teams.home.name }}</strong> vs <strong>{{ match.teams.away.name }}</strong><br>
+                <em>{{ match.fixture.date }}</em><br>
+                Skor: {{ match.goals.home }} - {{ match.goals.away }}
+            </div>
+        {% empty %}
+            <p>Bu ligde maç bulunamadı.</p>
+        {% endfor %}
+    {% endfor %}
+</body>
+</html>
+

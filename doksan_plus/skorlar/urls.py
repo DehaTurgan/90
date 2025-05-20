@@ -1,7 +1,7 @@
-
 from django.urls import path
-from . import views
+from .views import fixtures_view
 
 urlpatterns = [
-    path("", views.home, name="home"),
+    path('', fixtures_view, name='home'),  # Bu satır root (ana sayfa) için
+    path('fixtures/', fixtures_view, name='fixtures'),
 ]
