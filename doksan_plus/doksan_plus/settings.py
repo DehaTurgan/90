@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -122,4 +122,11 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-COLLECTAPI_KEY = 'apikey5MZvRFh6w74TClgWPvKr6z:42s39uyQlDYI4oPTWDMuTV'
+API_FOOTBALL_KEY = os.getenv('1fe6442495bf6a88ab6a95cfcb3cb436')
+
+# Önbellek için basit ayar
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}

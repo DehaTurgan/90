@@ -1,0 +1,60 @@
+<!-- templates/match_detail.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Maç Detayı</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container py-4">
+    <h1 class="mb-4">Maç Detayı</h1>
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">{{ home_team }} {{ score }} {{ away_team }}</h3>
+            <p class="card-text"><small class="text-muted">{{ date }}</small></p>
+        </div>
+    </div>
+
+    <h2 class="mt-4">İstatistikler</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>İstatistik</th>
+                <th>{{ home_team }}</th>
+                <th>{{ away_team }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Şut (Kaleye)</td>
+                <td>{{ home_shots_on }}</td>
+                <td>{{ away_shots_on }}</td>
+            </tr>
+            <tr>
+                <td>Şut (Kaçan)</td>
+                <td>{{ home_shots_off }}</td>
+                <td>{{ away_shots_off }}</td>
+            </tr>
+            <tr>
+                <td>Topa Sahip Olma</td>
+                <td>{{ home_possession }}</td>
+                <td>{{ away_possession }}</td>
+            </tr>
+            <tr>
+                <td>Yeşil Kart</td>
+                <td>{{ home_yellow }}</td>
+                <td>{{ away_yellow }}</td>
+            </tr>
+            <tr>
+                <td>Kırmızı Kart</td>
+                <td>{{ home_red }}</td>
+                <td>{{ away_red }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{% url 'home' %}" class="btn btn-secondary mt-3">Geri Dön</a>
+</div>
+</body>
+</html>
