@@ -1,4 +1,49 @@
-<!DOCTYPE html>
+{% extends 'base.html' %}
+
+{% block title %}Matches - 90+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Matches</h1>
+
+    {% for league_data in all_fixtures %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="mb-0">{{ league_data.league }}</h2>
+            </div>
+            <div class="card-body">
+                {% for match in league_data.matches %}
+                    <div class="fixture p-3 mb-2 border rounded">
+                        <a href="{% url 'match_detail' match.fixture.id %}" class="text-decoration-none text-dark">
+                            <div class="row align-items-center">
+                                <div class="col-5 text-end">
+                                    <strong>{{ match.teams.home.name }}</strong>
+                                </div>
+                                <div class="col-2 text-center">
+                                    <span class="badge bg-primary">{{ match.goals.home }} - {{ match.goals.away }}</span>
+                                </div>
+                                <div class="col-5">
+                                    <strong>{{ match.teams.away.name }}</strong>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-12 text-center">
+                                    <small class="text-muted">{{ match.fixture.date|date:"F j, Y, g:i a" }}</small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                {% empty %}
+                    <p class="text-muted">No matches found for this league.</p>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+
+{% comment %} <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -24,5 +69,5 @@
         {% endfor %}
     {% endfor %}
 </body>
-</html>
+</html> {% endcomment %}
 

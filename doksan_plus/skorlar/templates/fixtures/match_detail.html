@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load match_filters %}
+
+{% block title %}{{ match.teams.home.name }} vs {{ match.teams.away.name }} - Match Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'fixtures' %}">Matches</a></li>
+                    <li class="breadcrumb-item active">Match Details</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="text-center mb-0">
+                <img src="{{ match.teams.home.logo }}" alt="{{ match.teams.home.name }} logo" style="height:40px;vertical-align:middle;"> 
+                {{ match.teams.home.name }} vs {{ match.teams.away.name }} 
+                <img src="{{ match.teams.away.logo }}" alt="{{ match.teams.away.name }} logo" style="height:40px;vertical-align:middle;">
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-4">
+                    <img src="{{ match.teams.home.logo }}" alt="{{ match.teams.home.name }} logo" style="height:48px;vertical-align:middle;">
+                    <h3>{{ match.teams.home.name }}</h3>
+                    <h4 class="display-4">{{ match.goals.home }}</h4>
+                </div>
+                <div class="col-4">
+                    <p class="text-muted">{{ match.fixture.status.long }}</p>
+                    <p class="text-muted">{{ match.fixture.date|date:"F j, Y" }}</p>
+                    <p class="text-muted">{{ match.fixture.date|date:"g:i a" }}</p>
+                </div>
+                <div class="col-4">
+                    <img src="{{ match.teams.away.logo }}" alt="{{ match.teams.away.name }} logo" style="height:48px;vertical-align:middle;">
+                    <h3>{{ match.teams.away.name }}</h3>
+                    <h4 class="display-4">{{ match.goals.away }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if match.statistics %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Match Statistics</h3>
+                </div>
+                <div class="card-body">
+                    <div class="statistics-container">
+                        {% for stat in match.statistics %}
+                            {% if stat.name in 'Ball Possession,Total Shots,Shots on Goal,Shots off Goal,Blocked Shots,Corner Kicks,Offsides,Yellow Cards,Red Cards' %}
+                            <div class="stat-row mb-3">
+                                <div class="row align-items-center">
+                                    <div class="col-3 text-end">
+                                        <span class="stat-value">{{ stat.home }}</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="progress" style="height: 25px;">
+                                            {% with total=stat.home|add:stat.away %}
+                                                {% if total > 0 %}
+                                                    {% with home_percent=stat.home|div:total|mul:100 %}
+                                                    <div class="progress-bar bg-primary" role="progressbar" 
+                                                         style="width: {{ home_percent }}%"
+                                                         aria-valuenow="{{ home_percent }}" 
+                                                         aria-valuemin="0" 
+                                                         aria-valuemax="100">
+                                                    </div>
+                                                    {% endwith %}
+                                                {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <span class="stat-value">{{ stat.away }}</span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 text-center">
+                                        <span class="stat-name">{{ stat.name }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if match.events %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Match Events</h3>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for event in match.events %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h4>{{ event.time }}' - {{ event.type }}</h4>
+                                <p>{{ event.detail }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #007bff;
+}
+
+.timeline-content {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.statistics-container {
+    padding: 20px;
+}
+
+.stat-row {
+    margin-bottom: 25px;
+}
+
+.stat-name {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #212529;
+}
+
+.progress {
+    background-color: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 0.6s ease;
+}
+
+/* Add animation to progress bars */
+@keyframes slideIn {
+    from {
+        width: 0;
+    }
+    to {
+        width: var(--final-width);
+    }
+}
+
+.progress-bar {
+    animation: slideIn 1s ease-out forwards;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate progress bars
+    const progressBars = document.querySelectorAll('.progress-bar');
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0';
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 100);
+    });
+});
+</script>
+{% endblock %}
