@@ -31,45 +31,71 @@
         </div>
         <div class="card-body">
             {% if match.statistics %}
+                <div class="stat-legend">
+                    <div class="legend-item">
+                        <div class="legend-color legend-home"></div>
+                        <span>{{ match.teams.home.name }}</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-away"></div>
+                        <span>{{ match.teams.away.name }}</span>
+                    </div>
+                </div>
                 {% for stat in match.statistics %}
-                    <div class="stat-row mb-4">
-                        <div class="row">
-                            <div class="col-12 text-center mb-2">
-                                <span class="stat-name">{{ stat.name }}</span>
-                            </div>
-                        </div>
-                        <div class="row align-items-center">
-                            <div class="col-4 text-end">
-                                <strong class="stat-value">{{ stat.home }}</strong>
-                            </div>
-                            <div class="col-4">
-                                <div class="progress">
-                                    {% if stat.name == 'Ball Possession' %}
-                                        <div class="progress-bar bg-primary" role="progressbar" 
-                                             style="width: {{ stat.home }}%" 
-                                             aria-valuenow="{{ stat.home }}" 
-                                             aria-valuemin="0" 
-                                             aria-valuemax="100">
-                                        </div>
-                                    {% else %}
-                                        {% with total=stat.home|add:stat.away %}
-                                            {% if total > 0 %}
-                                                <div class="progress-bar bg-primary" role="progressbar" 
-                                                     style="width: {{ stat.home|percentage:total }}%" 
-                                                     aria-valuenow="{{ stat.home }}" 
-                                                     aria-valuemin="0" 
-                                                     aria-valuemax="{{ total }}">
-                                                </div>
-                                            {% endif %}
-                                        {% endwith %}
-                                    {% endif %}
+                    {% if stat.name != 'Passes %' and stat.name != 'EXPECTED_GOALS'%}
+                        <div class="stat-row mb-4">
+                            <div class="row">
+                                <div class="col-12 text-center mb-2">
+                                    <span class="stat-name">{{ stat.name }}</span>
                                 </div>
                             </div>
-                            <div class="col-4">
-                                <strong class="stat-value">{{ stat.away }}</strong>
+                            <div class="row align-items-center">
+                                <div class="col-4 text-end">
+                                    <strong class="stat-value">{{ stat.home }}</strong>
+                                </div>
+                                <div class="col-4">
+                                    <div class="progress">
+                                        {% if stat.name == 'Ball Possession' %}
+                                            <div class="progress-bar bg-primary" role="progressbar" 
+                                                 style="width: {{ stat.home }}%" 
+                                                 aria-valuenow="{{ stat.home }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                            </div>
+                                            <div class="progress-bar bg-danger" role="progressbar" 
+                                                 style="width: {{ stat.away }}%" 
+                                                 aria-valuenow="{{ stat.away }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                            </div>
+                                        {% else %}
+                                            {% with total=stat.home|add:stat.away %}
+                                                {% if total > 0 %}
+                                                    {% with home_percent=stat.home|percentage:total away_percent=stat.away|percentage:total %}
+                                                        <div class="progress-bar bg-primary" role="progressbar" 
+                                                             style="width: {{ home_percent }}%" 
+                                                             aria-valuenow="{{ stat.home }}" 
+                                                             aria-valuemin="0" 
+                                                             aria-valuemax="{{ total }}">
+                                                        </div>
+                                                        <div class="progress-bar bg-danger" role="progressbar" 
+                                                             style="width: {{ away_percent }}%" 
+                                                             aria-valuenow="{{ stat.away }}" 
+                                                             aria-valuemin="0" 
+                                                             aria-valuemax="{{ total }}">
+                                                        </div>
+                                                    {% endwith %}
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <strong class="stat-value">{{ stat.away }}</strong>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    {% endif %}
                 {% endfor %}
             {% else %}
                 <p class="text-center">No statistics available</p>
@@ -87,19 +113,19 @@
                 <div class="timeline">
                     {% for event in match.events %}
                         <div class="timeline-item">
-                            <div class="timeline-marker">
+                            <div class="timeline-marker {% if event.type == 'Goal' %}goal-marker{% elif event.type == 'Card' %}card-marker{% elif event.type == 'Subst' %}subst-marker{% else %}default-marker{% endif %}">
                                 {% if event.type == 'Goal' %}
-                                    <i class="fas fa-futbol text-success"></i>
+                                    <i class="fas fa-futbol"></i>
                                 {% elif event.type == 'Card' %}
                                     {% if 'Yellow' in event.description %}
-                                        <i class="fas fa-square text-warning"></i>
+                                        <div class="card-icon card-yellow"></div>
                                     {% else %}
-                                        <i class="fas fa-square text-danger"></i>
+                                        <div class="card-icon card-red"></div>
                                     {% endif %}
                                 {% elif event.type == 'Subst' %}
-                                    <i class="fas fa-exchange-alt text-info"></i>
+                                    <i class="fas fa-exchange-alt"></i>
                                 {% else %}
-                                    <i class="fas fa-circle text-primary"></i>
+                                    <i class="fas fa-circle"></i>
                                 {% endif %}
                             </div>
                             <div class="timeline-content">
@@ -151,6 +177,14 @@
     transition: width 0.6s ease;
 }
 
+.progress-bar.bg-primary {
+    background-color: #007bff !important;
+}
+
+.progress-bar.bg-danger {
+    background-color: #dc3545 !important;
+}
+
 .timeline {
     position: relative;
     padding: 20px 0;
@@ -170,15 +204,61 @@
     height: 36px;
     border-radius: 50%;
     background: #fff;
-    border: 2px solid #007bff;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+.goal-marker {
+    border: 2px solid #28a745;
+    background: #fff;
+}
+
+.card-marker {
+    border: none;
+    background: transparent;
+    box-shadow: none;
+}
+
+.subst-marker {
+    border: 2px solid #17a2b8;
+    background: #fff;
+}
+
+.default-marker {
+    border: 2px solid #6c757d;
+    background: #f8f9fa;
+}
+
+.card-icon {
+    width: 24px;
+    height: 32px;
+    border-radius: 3px;
+    position: relative;
+}
+
+.card-yellow {
+    background: #ffc107;
+    border: 2px solid #ffc107;
+}
+
+.card-red {
+    background: #dc3545;
+    border: 2px solid #dc3545;
+}
+
 .timeline-marker i {
     font-size: 1.2rem;
+}
+
+.timeline-marker.goal-marker i {
+    color: #28a745;
+}
+
+.timeline-marker.subst-marker i {
+    color: #17a2b8;
+    transform: scale(1.2);
 }
 
 .timeline-content {
@@ -214,6 +294,35 @@
     color: #212529;
     font-size: 1rem;
     line-height: 1.4;
+}
+
+/* Add legend for team colors */
+.stat-legend {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    gap: 20px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    margin-right: 8px;
+}
+
+.legend-home {
+    background-color: #007bff;
+}
+
+.legend-away {
+    background-color: #dc3545;
 }
 </style>
 {% endblock %}
