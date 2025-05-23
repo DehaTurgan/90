@@ -20,5 +20,12 @@ def mul(value, arg):
 def percentage(value, total):
     try:
         return int((float(value) / float(total)) * 100)
-    except (ValueError, ZeroDivisionError):
+    except (ValueError, ZeroDivisionError, TypeError):
+        return 0
+
+@register.filter
+def calculate_pass_accuracy(accurate_passes, total_passes):
+    try:
+        return int((float(accurate_passes) / float(total_passes)) * 100)
+    except (ValueError, ZeroDivisionError, TypeError):
         return 0
