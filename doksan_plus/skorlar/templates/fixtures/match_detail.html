@@ -4,164 +4,134 @@
 {% block title %}{{ match.teams.home.name }} vs {{ match.teams.away.name }} - Match Details{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'fixtures' %}">Matches</a></li>
-                    <li class="breadcrumb-item active">Match Details</li>
-                </ol>
-            </nav>
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-4 text-center">
+                    <img src="{{ match.teams.home.logo }}" alt="{{ match.teams.home.name }}" class="img-fluid" style="max-height: 100px;">
+                    <h5 class="mt-2">{{ match.teams.home.name }}</h5>
+                </div>
+                <div class="col-4 text-center">
+                    <h3 class="mb-0">{{ match.goals.home }} - {{ match.goals.away }}</h3>
+                    <p class="text-muted">{{ match.fixture.status.long }}</p>
+                </div>
+                <div class="col-4 text-center">
+                    <img src="{{ match.teams.away.logo }}" alt="{{ match.teams.away.name }}" class="img-fluid" style="max-height: 100px;">
+                    <h5 class="mt-2">{{ match.teams.away.name }}</h5>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="card mb-4">
+    <!-- Statistics Tab -->
+    <div class="card mt-4">
         <div class="card-header">
-            <h2 class="text-center mb-0">
-                <img src="{{ match.teams.home.logo }}" alt="{{ match.teams.home.name }} logo" style="height:40px;vertical-align:middle;"> 
-                {{ match.teams.home.name }} vs {{ match.teams.away.name }} 
-                <img src="{{ match.teams.away.logo }}" alt="{{ match.teams.away.name }} logo" style="height:40px;vertical-align:middle;">
-            </h2>
+            <h5 class="mb-0">Match Statistics</h5>
         </div>
         <div class="card-body">
-            <div class="row text-center">
-                <div class="col-4">
-                    <img src="{{ match.teams.home.logo }}" alt="{{ match.teams.home.name }} logo" style="height:48px;vertical-align:middle;">
-                    <h3>{{ match.teams.home.name }}</h3>
-                    <h4 class="display-4">{{ match.goals.home }}</h4>
-                </div>
-                <div class="col-4">
-                    <p class="text-muted">{{ match.fixture.status.long }}</p>
-                    <p class="text-muted">{{ match.fixture.date|date:"F j, Y" }}</p>
-                    <p class="text-muted">{{ match.fixture.date|date:"g:i a" }}</p>
-                </div>
-                <div class="col-4">
-                    <img src="{{ match.teams.away.logo }}" alt="{{ match.teams.away.name }} logo" style="height:48px;vertical-align:middle;">
-                    <h3>{{ match.teams.away.name }}</h3>
-                    <h4 class="display-4">{{ match.goals.away }}</h4>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {% if match.statistics %}
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3>Match Statistics</h3>
-                </div>
-                <div class="card-body">
-                    <div class="statistics-container">
-                        {% for stat in match.statistics %}
-                            {% if stat.name in 'Ball Possession,Total Shots,Shots on Goal,Shots off Goal,Blocked Shots,Corner Kicks,Offsides,Yellow Cards,Red Cards' %}
-                            <div class="stat-row mb-3">
-                                <div class="row align-items-center">
-                                    <div class="col-3 text-end">
-                                        <span class="stat-value">{{ stat.home }}</span>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="progress" style="height: 25px;">
-                                            {% with total=stat.home|add:stat.away %}
-                                                {% if total > 0 %}
-                                                    {% with home_percent=stat.home|div:total|mul:100 %}
-                                                    <div class="progress-bar bg-primary" role="progressbar" 
-                                                         style="width: {{ home_percent }}%"
-                                                         aria-valuenow="{{ home_percent }}" 
-                                                         aria-valuemin="0" 
-                                                         aria-valuemax="100">
-                                                    </div>
-                                                    {% endwith %}
-                                                {% endif %}
-                                            {% endwith %}
-                                        </div>
-                                    </div>
-                                    <div class="col-3">
-                                        <span class="stat-value">{{ stat.away }}</span>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-12 text-center">
-                                        <span class="stat-name">{{ stat.name }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    {% if match.events %}
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3>Match Events</h3>
-                </div>
-                <div class="card-body">
-                    <div class="timeline">
-                        {% for event in match.events %}
-                        <div class="timeline-item">
-                            <div class="timeline-marker"></div>
-                            <div class="timeline-content">
-                                <h4>{{ event.time }}' - {{ event.type }}</h4>
-                                <p>{{ event.detail }}</p>
+            {% if match.statistics %}
+                {% for stat in match.statistics %}
+                    <div class="stat-row mb-4">
+                        <div class="row">
+                            <div class="col-12 text-center mb-2">
+                                <span class="stat-name">{{ stat.name }}</span>
                             </div>
                         </div>
-                        {% endfor %}
+                        <div class="row align-items-center">
+                            <div class="col-4 text-end">
+                                <strong class="stat-value">{{ stat.home }}</strong>
+                            </div>
+                            <div class="col-4">
+                                <div class="progress">
+                                    {% if stat.name == 'Ball Possession' %}
+                                        <div class="progress-bar bg-primary" role="progressbar" 
+                                             style="width: {{ stat.home }}%" 
+                                             aria-valuenow="{{ stat.home }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                        </div>
+                                    {% else %}
+                                        {% with total=stat.home|add:stat.away %}
+                                            {% if total > 0 %}
+                                                <div class="progress-bar bg-primary" role="progressbar" 
+                                                     style="width: {{ stat.home|percentage:total }}%" 
+                                                     aria-valuenow="{{ stat.home }}" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="{{ total }}">
+                                                </div>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <strong class="stat-value">{{ stat.away }}</strong>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-center">No statistics available</p>
+            {% endif %}
         </div>
     </div>
-    {% endif %}
+
+    <!-- Events Tab -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">Match Events</h5>
+        </div>
+        <div class="card-body">
+            {% if match.events %}
+                <div class="timeline">
+                    {% for event in match.events %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker">
+                                {% if event.type == 'Goal' %}
+                                    <i class="fas fa-futbol text-success"></i>
+                                {% elif event.type == 'Card' %}
+                                    {% if 'Yellow' in event.description %}
+                                        <i class="fas fa-square text-warning"></i>
+                                    {% else %}
+                                        <i class="fas fa-square text-danger"></i>
+                                    {% endif %}
+                                {% elif event.type == 'Subst' %}
+                                    <i class="fas fa-exchange-alt text-info"></i>
+                                {% else %}
+                                    <i class="fas fa-circle text-primary"></i>
+                                {% endif %}
+                            </div>
+                            <div class="timeline-content">
+                                <div class="event-header">
+                                    <span class="event-time">{{ event.time }}'</span>
+                                    <span class="event-type">{{ event.type }}</span>
+                                </div>
+                                <div class="event-description">
+                                    {{ event.description }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-center">No events available</p>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
 <style>
-.timeline {
-    position: relative;
-    padding: 20px 0;
-}
-
-.timeline-item {
-    position: relative;
-    padding-left: 40px;
-    margin-bottom: 20px;
-}
-
-.timeline-marker {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    background: #007bff;
-}
-
-.timeline-content {
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 4px;
-}
-
-.statistics-container {
-    padding: 20px;
-}
-
 .stat-row {
-    margin-bottom: 25px;
+    padding: 10px 0;
 }
 
 .stat-name {
     font-size: 0.9rem;
     color: #6c757d;
     font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .stat-value {
@@ -171,8 +141,9 @@
 }
 
 .progress {
+    height: 8px;
     background-color: #e9ecef;
-    border-radius: 10px;
+    border-radius: 4px;
     overflow: hidden;
 }
 
@@ -180,32 +151,69 @@
     transition: width 0.6s ease;
 }
 
-/* Add animation to progress bars */
-@keyframes slideIn {
-    from {
-        width: 0;
-    }
-    to {
-        width: var(--final-width);
-    }
+.timeline {
+    position: relative;
+    padding: 20px 0;
 }
 
-.progress-bar {
-    animation: slideIn 1s ease-out forwards;
+.timeline-item {
+    position: relative;
+    padding-left: 50px;
+    margin-bottom: 25px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #007bff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.timeline-marker i {
+    font-size: 1.2rem;
+}
+
+.timeline-content {
+    background: #fff;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border: 1px solid #e9ecef;
+}
+
+.event-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.event-time {
+    background: #f8f9fa;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    color: #495057;
+    margin-right: 10px;
+}
+
+.event-type {
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.event-description {
+    color: #212529;
+    font-size: 1rem;
+    line-height: 1.4;
 }
 </style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Animate progress bars
-    const progressBars = document.querySelectorAll('.progress-bar');
-    progressBars.forEach(bar => {
-        const width = bar.style.width;
-        bar.style.width = '0';
-        setTimeout(() => {
-            bar.style.width = width;
-        }, 100);
-    });
-});
-</script>
 {% endblock %}

@@ -15,3 +15,10 @@ def mul(value, arg):
         return float(value) * float(arg)
     except (ValueError, ZeroDivisionError):
         return 0
+
+@register.filter
+def percentage(value, total):
+    try:
+        return int((float(value) / float(total)) * 100)
+    except (ValueError, ZeroDivisionError):
+        return 0
