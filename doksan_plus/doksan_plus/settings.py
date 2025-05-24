@@ -126,6 +126,9 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Custom user model
+AUTH_USER_MODEL = 'skorlar.User'
+
 API_FOOTBALL_KEY = os.getenv('1fe6442495bf6a88ab6a95cfcb3cb436')
 
 # Önbellek için basit ayar
