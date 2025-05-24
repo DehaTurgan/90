@@ -3,25 +3,416 @@
 {% block title %}Matches - 90+{% endblock %}
 
 {% block content %}
+<style>
+    .league-container {
+        display: flex;
+        justify-content: center;
+        align-items: stretch;
+        gap: 15px;
+        margin: 20px 0;
+        flex-wrap: nowrap;
+    }
+
+    .controls-container {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 0 15px;
+    }
+
+    .league-box {
+        border: 2px solid #000;
+        padding: 12px 15px;
+        cursor: pointer;
+        min-width: 0;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s ease;
+    }
+
+    .league-box:hover {
+        background-color: #f5f5f5;
+    }
+
+    .league-box h3 {
+        margin: 0;
+        font-size: 14px;
+        text-align: center;
+        white-space: normal;
+        word-wrap: break-word;
+        line-height: 1.2;
+        width: 100%;
+        max-width: 200px;
+    }
+
+    .search-container {
+        max-width: 450px;
+        margin: 40px 0;
+        padding: 20px;
+        border: 2px solid #000;
+    }
+
+    .question-container {
+        max-width: 450px;
+        margin: 40px 0;
+        padding: 20px;
+        border: 2px solid #000;
+        transition: all 0.3s ease;
+    }
+
+    .question-container.correct {
+        background-color: #d4edda;
+        border-color: #28a745;
+    }
+
+    .question-container.wrong {
+        background-color: #f8d7da;
+        border-color: #dc3545;
+    }
+
+    .question-text {
+        font-size: 16px;
+        margin-bottom: 20px;
+        font-weight: 500;
+    }
+
+    .answer-boxes {
+        display: flex;
+        gap: 15px;
+    }
+
+    .answer-box {
+        flex: 1;
+        padding: 15px;
+        text-align: center;
+        border: 2px solid #000;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .answer-box:hover {
+        background-color: #f5f5f5;
+    }
+
+    .search-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .search-row {
+        display: flex;
+        gap: 15px;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .search-button {
+        width: 100%;
+        padding: 10px;
+        background-color: #1a237e;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .search-button:hover {
+        background-color: #0d47a1;
+    }
+
+    .league-section {
+        display: none;
+    }
+
+    .league-section.visible {
+        display: block;
+    }
+
+    .match-card {
+        position: relative;
+    }
+
+    .favorite-star {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 1;
+    }
+
+    .favorite-star i {
+        color: #000;
+        font-size: 14px;
+        transition: opacity 0.3s ease;
+    }
+
+    .favorite-star.active {
+        background-color: #ffd700;
+        border-color: #ffd700;
+    }
+
+    .favorite-star.active i {
+        opacity: 0;
+    }
+
+    .favorite-star:hover {
+        transform: scale(1.1);
+    }
+
+    .favorite-matches-container {
+        max-width: 450px;
+        margin: 20px 0;
+        padding: 20px;
+        border: 2px solid #000;
+    }
+
+    .favorite-matches-button {
+        width: 100%;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border: 2px solid #000;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .favorite-matches-button:hover {
+        background-color: #e9ecef;
+    }
+
+    .favorite-matches-content {
+        display: none;
+        margin-top: 20px;
+    }
+
+    .favorite-matches-content.visible {
+        display: block;
+    }
+
+    .language-selector {
+        position: relative;
+        display: inline-block;
+        margin-right: 20px;
+    }
+
+    .language-button {
+        background: none;
+        border: 2px solid #000;
+        color: var(--text-color);
+        padding: 8px 16px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+    .language-button:hover {
+        background-color: #f5f5f5;
+    }
+
+    .language-options {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: white;
+        border-radius: 4px;
+        border: 2px solid #000;
+        overflow: hidden;
+        z-index: 1000;
+        min-width: 150px;
+        margin-top: 5px;
+    }
+
+    .language-options.show {
+        display: block;
+    }
+
+    .language-option {
+        padding: 8px 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        color: var(--text-color);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .language-option:hover {
+        background-color: #f5f5f5;
+    }
+
+    .language-option.active {
+        background-color: #e9ecef;
+    }
+
+    .language-option img {
+        width: 20px;
+        height: auto;
+    }
+
+    .theme-toggle {
+        border: 2px solid #000;
+        padding: 8px 16px;
+        width: 20px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        border-radius: 4px;
+        margin-right: 20px;
+        min-width: 80px;
+        background: none;
+        transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+        background-color: #f5f5f5;
+    }
+
+    body.dark-theme {
+        background: #f0f0f0;
+    }
+</style>
+
 <div class="container">
     <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="text-center mb-4">
-                <i class="fas fa-calendar-alt me-2"></i>Upcoming Matches
+        <div class="col-12 d-flex align-items-center justify-content-between">
+            <!-- Controls -->
+            <div class="d-flex align-items-center gap-3">
+                <!-- Language Selector -->
+                <div class="language-selector">
+                    <button class="language-button" onclick="toggleLanguageOptions(event)">
+                        <i class="fas fa-globe"></i>
+                        <span id="currentLanguage">English</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="language-options" id="languageOptions">
+                        <div class="language-option active" onclick="changeLanguage('en', 'English')">
+                            <img src="https://flagcdn.com/w20/gb.png" width="16" alt="English">
+                            English
+                        </div>
+                        <div class="language-option" onclick="changeLanguage('tr', 'Türkçe')">
+                            <img src="https://flagcdn.com/w20/tr.png" width="16" alt="Turkish">
+                            Türkçe
+                        </div>
+                    </div>
+                </div>
+                <!-- Theme Toggle -->
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">White</button>
+            </div>
+            <!-- Centered Heading -->
+            <h2 class="mb-0 position-absolute start-50 translate-middle-x">
+                <i class="fas fa-trophy me-2"></i>Football Leagues
             </h2>
+            <!-- Empty div for flex spacing -->
+            <div class="d-flex align-items-center gap-3 invisible">
+                <div class="language-selector">
+                    <button class="language-button">
+                        <i class="fas fa-globe"></i>
+                        <span>English</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+                <button class="theme-toggle">White</button>
+            </div>
         </div>
     </div>
 
+    <!-- League Boxes -->
+    <div class="league-container">
+        {% for league in all_fixtures %}
+            <div class="league-box" data-league="{{ league.league }}">
+                <h3>{{ league.league }}</h3>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <!-- Search Section -->
+                <div class="search-container">
+                    <form class="search-form" id="matchSearchForm">
+                        <div class="search-row">
+                            <input type="text" class="search-input" placeholder="Home Team" id="team1Search">
+                            <input type="text" class="search-input" placeholder="Away Team" id="team2Search">
+                        </div>
+                        <button type="submit" class="search-button">
+                            <i class="fas fa-search me-2"></i>Search Matches
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Favorite Matches Section -->
+                <div class="favorite-matches-container">
+                    <button class="favorite-matches-button" onclick="toggleFavoriteMatches()">
+                        <i class="fas fa-star me-2"></i>Favorite Matches
+                    </button>
+                    <div class="favorite-matches-content" id="favoriteMatchesContent">
+                        <!-- Favorited matches will be cloned here -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <!-- Question Section -->
+                <div class="question-container" id="questionContainer">
+                    <div class="question-text">
+                        Which team will win this match?
+                    </div>
+                    <div class="answer-boxes">
+                        <div class="answer-box" onclick="handleAnswer(true)">
+                            Correct
+                        </div>
+                        <div class="answer-box" onclick="handleAnswer(false)">
+                            Wrong
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- League Sections with Matches -->
     {% for league in all_fixtures %}
-        <div class="league-section mb-4">
-            <div class="card">
+        <div class="league-section" data-league="{{ league.league }}">
+            <div class="card mt-4">
                 <div class="card-header d-flex align-items-center">
-                    <i class="fas fa-trophy me-2"></i>
-                    <h5 class="mb-0">{{ league.league }}</h5>
+                    <i class="fas fa-futbol me-2"></i>
+                    <h5 class="mb-0">{{ league.league }} Matches</h5>
                 </div>
                 <div class="card-body p-0">
                     {% for match in league.matches %}
-                        <div class="match-card">
+                        <div class="match-card" 
+                             data-team1="{{ match.teams.home.name|lower }}" 
+                             data-team2="{{ match.teams.away.name|lower }}">
+                            <div class="favorite-star" onclick="toggleFavorite(this)">
+                                <i class="fas fa-star"></i>
+                            </div>
                             <div class="row align-items-center py-3 px-4">
                                 <div class="col-md-4 text-center text-md-end">
                                     <div class="team-info">
@@ -75,19 +466,281 @@
     {% endfor %}
 </div>
 
+<script>
+// Translation dictionary
+const translations = {
+    en: {
+        footballLeagues: "Football Leagues",
+        matches: "Matches",
+        homeTeam: "Home Team",
+        awayTeam: "Away Team",
+        searchMatches: "Search Matches",
+        favoriteMatches: "Favorite Matches",
+        noFavorites: "No favorite matches selected",
+        whichTeamWin: "Which team will win this match?",
+        correct: "Correct",
+        wrong: "Wrong",
+        viewDetails: "View Details",
+        noMatches: "No matches found"
+    },
+    tr: {
+        footballLeagues: "Futbol Ligleri",
+        matches: "Maçlar",
+        homeTeam: "Ev Sahibi",
+        awayTeam: "Deplasman",
+        searchMatches: "Maç Ara",
+        favoriteMatches: "Favori Maçlar",
+        noFavorites: "Favori maç seçilmedi",
+        whichTeamWin: "Bu maçı hangi takım kazanacak?",
+        correct: "Doğru",
+        wrong: "Yanlış",
+        viewDetails: "Detayları Gör",
+        noMatches: "Maç bulunamadı"
+    }
+};
+
+// Store current language
+let currentLanguage = 'en';
+
+// Function to update all text content based on selected language
+function updatePageContent(lang) {
+    const t = translations[lang];
+    
+    // Update header
+    document.querySelector('.row.mb-4 h2').innerHTML = `<i class="fas fa-trophy me-2"></i>${t.footballLeagues}`;
+    
+    // Update search section
+    document.querySelector('#team1Search').placeholder = t.homeTeam;
+    document.querySelector('#team2Search').placeholder = t.awayTeam;
+    document.querySelector('.search-button').innerHTML = `<i class="fas fa-search me-2"></i>${t.searchMatches}`;
+    
+    // Update favorite matches section
+    document.querySelector('.favorite-matches-button').innerHTML = `<i class="fas fa-star me-2"></i>${t.favoriteMatches}`;
+    const noFavoritesElement = document.querySelector('#favoriteMatchesContent p');
+    if (noFavoritesElement) {
+        noFavoritesElement.textContent = t.noFavorites;
+    }
+    
+    // Update question section
+    document.querySelector('.question-text').textContent = t.whichTeamWin;
+    document.querySelectorAll('.answer-box')[0].textContent = t.correct;
+    document.querySelectorAll('.answer-box')[1].textContent = t.wrong;
+    
+    // Update match details buttons
+    document.querySelectorAll('.match-footer .btn').forEach(btn => {
+        btn.innerHTML = `<i class="fas fa-chart-bar me-1"></i> ${t.viewDetails}`;
+    });
+}
+
+function changeLanguage(code, name) {
+    // Update button text
+    document.getElementById('currentLanguage').textContent = name;
+    
+    // Remove active class from all options
+    document.querySelectorAll('.language-option').forEach(option => {
+        option.classList.remove('active');
+    });
+    
+    // Add active class to selected option
+    event.currentTarget.classList.add('active');
+    
+    // Hide the options
+    document.getElementById('languageOptions').classList.remove('show');
+    
+    // Store the selected language
+    currentLanguage = code;
+    localStorage.setItem('preferredLanguage', code);
+    
+    // Update page content
+    updatePageContent(code);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const leagueBoxes = document.querySelectorAll('.league-box');
+    const leagueSections = document.querySelectorAll('.league-section');
+    const matchSearchForm = document.getElementById('matchSearchForm');
+    const team1Search = document.getElementById('team1Search');
+    const team2Search = document.getElementById('team2Search');
+    const matchCards = document.querySelectorAll('.match-card');
+
+    // Hide all sections initially
+    leagueSections.forEach(section => {
+        section.style.display = 'none';
+    });
+
+    leagueBoxes.forEach(box => {
+        box.addEventListener('click', function() {
+            const selectedLeague = this.dataset.league;
+            
+            leagueSections.forEach(section => {
+                if (section.dataset.league === selectedLeague) {
+                    if (section.style.display === 'none') {
+                        section.style.display = 'block';
+                    } else {
+                        section.style.display = 'none';
+                    }
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // Search functionality
+    matchSearchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const team1Term = team1Search.value.toLowerCase();
+        const team2Term = team2Search.value.toLowerCase();
+
+        // Show all league sections for search results
+        leagueSections.forEach(section => {
+            section.style.display = 'block';
+        });
+
+        matchCards.forEach(card => {
+            const team1 = card.dataset.team1;
+            const team2 = card.dataset.team2;
+            
+            const matchesTeams = (!team1Term && !team2Term) ||
+                               (team1Term && team2Term && 
+                                ((team1.includes(team1Term) && team2.includes(team2Term)) ||
+                                 (team1.includes(team2Term) && team2.includes(team1Term)))) ||
+                               (team1Term && !team2Term && 
+                                (team1.includes(team1Term) || team2.includes(team1Term))) ||
+                               (!team1Term && team2Term && 
+                                (team1.includes(team2Term) || team2.includes(team2Term)));
+
+            card.style.display = matchesTeams ? 'block' : 'none';
+        });
+
+        // Hide league sections that have no visible matches
+        leagueSections.forEach(section => {
+            const hasVisibleMatches = Array.from(section.querySelectorAll('.match-card'))
+                .some(card => card.style.display === 'block');
+            section.style.display = hasVisibleMatches ? 'block' : 'none';
+        });
+    });
+
+    // Add real-time search
+    [team1Search, team2Search].forEach(input => {
+        input.addEventListener('input', function() {
+            matchSearchForm.dispatchEvent(new Event('submit'));
+        });
+    });
+
+    // Check for saved language preference
+    const savedLanguage = localStorage.getItem('preferredLanguage');
+    if (savedLanguage) {
+        const languageNames = { en: 'English', tr: 'Türkçe' };
+        changeLanguage(savedLanguage, languageNames[savedLanguage]);
+    }
+
+    // Initialize theme on page load
+    const savedTheme = localStorage.getItem('theme');
+    const themeToggle = document.getElementById('themeToggle');
+    
+    if (savedTheme === 'dark') {
+        themeToggle.textContent = 'Cream';
+        document.body.classList.add('dark-theme');
+    } else {
+        themeToggle.textContent = 'White';
+        document.body.classList.remove('dark-theme');
+    }
+});
+
+function handleAnswer(isCorrect) {
+    const questionContainer = document.getElementById('questionContainer');
+    
+    // Remove any existing result classes
+    questionContainer.classList.remove('correct', 'wrong');
+    
+    // Add the appropriate class based on the answer
+    if (isCorrect) {
+        questionContainer.classList.add('correct');
+    } else {
+        questionContainer.classList.add('wrong');
+    }
+
+    // Remove the color after 2 seconds
+    setTimeout(() => {
+        questionContainer.classList.remove('correct', 'wrong');
+    }, 2000);
+}
+
+function toggleFavorite(starElement) {
+    // Simply toggle the active class on the clicked star
+    starElement.classList.toggle('active');
+    
+    // Update favorite matches section
+    updateFavoriteMatches();
+}
+
+function toggleFavoriteMatches() {
+    const content = document.getElementById('favoriteMatchesContent');
+    content.classList.toggle('visible');
+    updateFavoriteMatches();
+}
+
+function updateFavoriteMatches() {
+    const content = document.getElementById('favoriteMatchesContent');
+    const favoritedMatches = document.querySelectorAll('.match-card .favorite-star.active');
+    
+    // Clear existing content
+    content.innerHTML = '';
+    
+    if (favoritedMatches.length === 0) {
+        content.innerHTML = `<p class="text-center mt-3">${translations[currentLanguage].noFavorites}</p>`;
+        return;
+    }
+    
+    // Clone and append favorited matches
+    favoritedMatches.forEach(star => {
+        const matchCard = star.closest('.match-card');
+        const clone = matchCard.cloneNode(true);
+        
+        // Remove the favorite star from the clone
+        const starInClone = clone.querySelector('.favorite-star');
+        if (starInClone) {
+            starInClone.remove();
+        }
+        
+        content.appendChild(clone);
+    });
+}
+
+function toggleLanguageOptions(event) {
+    event.stopPropagation();
+    const options = document.getElementById('languageOptions');
+    options.classList.toggle('show');
+}
+
+// Close language options when clicking outside
+document.addEventListener('click', function(event) {
+    const languageSelector = document.querySelector('.language-selector');
+    const options = document.getElementById('languageOptions');
+    
+    if (!languageSelector.contains(event.target)) {
+        options.classList.remove('show');
+    }
+});
+
+function toggleTheme() {
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+    
+    if (themeToggle.textContent === 'White') {
+        themeToggle.textContent = 'Cream';
+        body.classList.add('dark-theme');
+        localStorage.setItem('theme', 'dark');
+    } else {
+        themeToggle.textContent = 'White';
+        body.classList.remove('dark-theme');
+        localStorage.setItem('theme', 'light');
+    }
+}
+</script>
+
 <style>
-.league-section .card {
-    overflow: hidden;
-}
-
-.match-card {
-    transition: background-color 0.3s ease;
-}
-
-.match-card:hover {
-    background-color: rgba(26, 35, 126, 0.05);
-}
-
 .team-logo {
     height: 40px;
     width: auto;
@@ -149,6 +802,52 @@
     }
 }
 </style>
+
+<div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'fixtures' %}">
+                <i class="fas fa-calendar-alt me-1"></i> Matches
+            </a>
+        </li>
+        <!-- Language Selector -->
+        <li class="nav-item language-selector">
+            <button class="nav-link language-button" onclick="toggleLanguageOptions(event)">
+                <i class="fas fa-globe"></i>
+                <span id="currentLanguage">English</span>
+                <i class="fas fa-chevron-down ms-1"></i>
+            </button>
+            <div class="language-options" id="languageOptions">
+                <div class="language-option active" onclick="changeLanguage('en', 'English')">
+                    <img src="https://flagcdn.com/w20/gb.png" width="16" alt="English">
+                    English
+                </div>
+                <div class="language-option" onclick="changeLanguage('tr', 'Türkçe')">
+                    <img src="https://flagcdn.com/w20/tr.png" width="16" alt="Turkish">
+                    Türkçe
+                </div>
+            </div>
+        </li>
+        {% if user.is_authenticated %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'logout' %}">
+                    <i class="fas fa-sign-out-alt me-1"></i> Logout
+                </a>
+            </li>
+        {% else %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'login' %}">
+                    <i class="fas fa-sign-in-alt me-1"></i> Login
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'signup' %}">
+                    <i class="fas fa-user-plus me-1"></i> Sign Up
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+</div>
 {% endblock %}
 
 
