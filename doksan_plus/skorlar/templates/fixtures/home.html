@@ -21,19 +21,24 @@
     }
 
     .league-box {
-        border: 2px solid #000;
-        padding: 12px 15px;
+        border: 1px solid #e0e0e0;
+        padding: 15px;
         cursor: pointer;
         min-width: 0;
         flex: 1;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: background-color 0.3s ease;
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
     .league-box:hover {
-        background-color: #f5f5f5;
+        background-color: #f8f9fa;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transform: translateY(-2px);
     }
 
     .league-box h3 {
@@ -45,21 +50,27 @@
         line-height: 1.2;
         width: 100%;
         max-width: 200px;
+        color: var(--primary-color);
     }
 
-    .search-container {
-        max-width: 450px;
-        margin: 40px 0;
-        padding: 20px;
-        border: 2px solid #000;
-    }
-
+    .search-container,
+    .favorite-matches-container,
     .question-container {
-        max-width: 450px;
-        margin: 40px 0;
-        padding: 20px;
-        border: 2px solid #000;
+        height: 100%;
+        margin: 20px 0;
+        padding: 25px;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         transition: all 0.3s ease;
+    }
+
+    .search-container:hover,
+    .favorite-matches-container:hover,
+    .question-container:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transform: translateY(-2px);
     }
 
     .question-container.correct {
@@ -74,8 +85,10 @@
 
     .question-text {
         font-size: 16px;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
         font-weight: 500;
+        text-align: center;
+        color: var(--primary-color);
     }
 
     .answer-boxes {
@@ -87,123 +100,94 @@
         flex: 1;
         padding: 15px;
         text-align: center;
-        border: 2px solid #000;
+        border: 1px solid #e0e0e0;
         cursor: pointer;
         font-weight: 500;
         transition: all 0.3s ease;
+        border-radius: 8px;
+        background-color: #f8f9fa;
     }
 
     .answer-box:hover {
-        background-color: #f5f5f5;
+        background-color: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+        border-color: var(--primary-color);
     }
 
     .search-form {
         display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 20px;
     }
 
     .search-row {
         display: flex;
         gap: 15px;
+        flex-wrap: wrap;
     }
 
     .search-input {
         flex: 1;
-        padding: 8px 12px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        min-width: 0;
+        padding: 12px 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
         font-size: 14px;
+        transition: all 0.3s ease;
+        background-color: #f8f9fa;
+    }
+
+    .search-input:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
+        background-color: white;
     }
 
     .search-button {
         width: 100%;
-        padding: 10px;
-        background-color: #1a237e;
+        padding: 12px;
+        background-color: var(--primary-color);
         color: white;
         border: none;
-        border-radius: 4px;
+        border-radius: 8px;
         cursor: pointer;
-        font-size: 16px;
-    }
-
-    .search-button:hover {
-        background-color: #0d47a1;
-    }
-
-    .league-section {
-        display: none;
-    }
-
-    .league-section.visible {
-        display: block;
-    }
-
-    .match-card {
-        position: relative;
-    }
-
-    .favorite-star {
-        position: absolute;
-        top: 15px;
-        left: 15px;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        z-index: 1;
-    }
-
-    .favorite-star i {
-        color: #000;
-        font-size: 14px;
-        transition: opacity 0.3s ease;
-    }
-
-    .favorite-star.active {
-        background-color: #ffd700;
-        border-color: #ffd700;
-    }
-
-    .favorite-star.active i {
-        opacity: 0;
-    }
-
-    .favorite-star:hover {
-        transform: scale(1.1);
-    }
-
-    .favorite-matches-container {
-        max-width: 450px;
-        margin: 20px 0;
-        padding: 20px;
-        border: 2px solid #000;
-    }
-
-    .favorite-matches-button {
-        width: 100%;
-        padding: 10px;
-        background-color: #f8f9fa;
-        border: 2px solid #000;
-        cursor: pointer;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 500;
         transition: all 0.3s ease;
     }
 
+    .search-button:hover {
+        background-color: var(--secondary-color);
+        transform: translateY(-2px);
+    }
+
+    .favorite-matches-button {
+        width: 100%;
+        padding: 12px;
+        background-color: white;
+        border: 1px solid var(--primary-color);
+        color: var(--primary-color);
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border-radius: 8px;
+    }
+
     .favorite-matches-button:hover {
-        background-color: #e9ecef;
+        background-color: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
     }
 
     .favorite-matches-content {
         display: none;
         margin-top: 20px;
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 5px;
     }
 
     .favorite-matches-content.visible {
@@ -297,6 +281,51 @@
     body.dark-theme {
         background: #f0f0f0;
     }
+
+    @media (max-width: 768px) {
+        .search-container,
+        .favorite-matches-container,
+        .question-container {
+            margin: 15px 0;
+            padding: 20px;
+        }
+
+        .search-row {
+            flex-direction: column;
+        }
+
+        .search-input {
+            width: 100%;
+        }
+
+        .answer-boxes {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .search-input,
+        .search-button,
+        .favorite-matches-button,
+        .answer-box {
+            padding: 10px;
+        }
+
+        .team-logo {
+            height: 30px;
+        }
+
+        .team-name {
+            font-size: 0.8rem;
+        }
+
+        .match-score h3 {
+            font-size: 1.5rem;
+        }
+
+        .match-card {
+            margin-bottom: 10px;
+        }
+    }
 </style>
 
 <div class="container">
@@ -354,7 +383,7 @@
 
     <div class="container">
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <!-- Search Section -->
                 <div class="search-container">
                     <form class="search-form" id="matchSearchForm">
@@ -367,7 +396,8 @@
                         </button>
                     </form>
                 </div>
-
+            </div>
+            <div class="col-md-4">
                 <!-- Favorite Matches Section -->
                 <div class="favorite-matches-container">
                     <button class="favorite-matches-button" onclick="toggleFavoriteMatches()">
@@ -378,7 +408,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <!-- Question Section -->
                 <div class="question-container" id="questionContainer">
                     <div class="question-text">
@@ -745,61 +775,91 @@ function toggleTheme() {
     height: 40px;
     width: auto;
     object-fit: contain;
+    transition: all 0.3s ease;
+}
+
+.team-info:hover .team-logo {
+    transform: scale(1.1);
 }
 
 .team-name {
     font-size: 0.9rem;
     font-weight: 600;
-    color: var(--text-color);
-    margin: 0;
+    color: var(--primary-color);
+    margin: 10px 0 0;
 }
 
 .match-info {
-    padding: 0.5rem;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin: 10px 0;
 }
 
 .match-time .badge {
     font-size: 0.8rem;
     padding: 0.4rem 0.8rem;
+    border-radius: 6px;
 }
 
 .match-score h3 {
     font-weight: 700;
     color: var(--primary-color);
+    margin: 10px 0;
 }
 
 .match-date small {
     font-size: 0.8rem;
+    color: #6c757d;
 }
 
 .match-footer {
-    padding: 0.5rem 1rem;
-    background-color: rgba(0,0,0,0.02);
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #e0e0e0;
+    border-radius: 0 0 12px 12px;
 }
 
 .match-footer .btn {
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 0.9rem;
     font-weight: 500;
+    padding: 8px 16px;
+    transition: all 0.3s ease;
 }
 
 .match-footer .btn:hover {
     background-color: var(--primary-color);
     color: white;
+    transform: translateY(-2px);
 }
 
-@media (max-width: 768px) {
-    .team-logo {
-        height: 30px;
-    }
-    
-    .team-name {
-        font-size: 0.8rem;
-    }
-    
-    .match-score h3 {
-        font-size: 1.5rem;
-    }
+/* League Section Styling */
+.league-section {
+    margin-bottom: 30px;
+}
+
+.league-section .card {
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.league-section .card-header {
+    background-color: white;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 15px 20px;
+}
+
+.league-section .card-header h5 {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin: 0;
+}
+
+.league-section .card-body {
+    padding: 0;
 }
 </style>
 
