@@ -24,7 +24,6 @@
         </div>
     </div>
 
-    <!-- Statistics Tab -->
     <div class="card mt-4">
         <div class="card-header">
             <h5 class="mb-0">Match Statistics</h5>
@@ -103,7 +102,6 @@
         </div>
     </div>
 
-    <!-- Events Tab -->
     <div class="card mt-4">
         <div class="card-header">
             <h5 class="mb-0">Match Events</h5>
@@ -213,6 +211,23 @@
 .goal-marker {
     border: 2px solid #28a745;
     background: #fff;
+    transform: rotate(-45deg);
+    transition: transform 0.3s ease;
+}
+
+.goal-marker:hover {
+    transform: rotate(0deg);
+}
+
+.goal-marker i {
+    font-size: 1.2rem;
+    color: #28a745;
+    transform: rotate(45deg);
+    transition: transform 0.3s ease;
+}
+
+.goal-marker:hover i {
+    transform: rotate(0deg);
 }
 
 .card-marker {
@@ -296,7 +311,6 @@
     line-height: 1.4;
 }
 
-/* Add legend for team colors */
 .stat-legend {
     display: flex;
     justify-content: center;

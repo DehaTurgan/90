@@ -14,5 +14,5 @@ def fetch_from_api(endpoint: str, params: dict = None) -> dict:
         'x-apisports-key': settings.API_FOOTBALL_KEY
     }
     response = requests.get(url, headers=headers, params=params or {})
-    response.raise_for_status()  # 4xx/5xx hata gelirse Exception fırlatır
+    response.raise_for_status()  
     return response.json()
