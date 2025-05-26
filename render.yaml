@@ -4,8 +4,9 @@ services:
     env: python
     buildCommand: |
       pip install -r requirements.txt
+      cd doksan_plus
       python manage.py collectstatic --noinput
-    startCommand: gunicorn doksan_plus.wsgi:application --bind 0.0.0.0:$PORT
+    startCommand: cd doksan_plus && gunicorn doksan_plus.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.0
