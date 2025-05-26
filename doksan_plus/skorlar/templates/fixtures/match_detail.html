@@ -1,328 +1,154 @@
 {% extends 'base.html' %}
-{% load match_filters %}
 
-{% block title %}{{ match.teams.home.name }} vs {{ match.teams.away.name }} - Match Details{% endblock %}
+{% block title %}Match Details - 90+{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/match_detail.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="card">
-        <div class="card-body">
-            <div class="row align-items-center">
-                <div class="col-4 text-center">
-                    <img src="{{ match.teams.home.logo }}" alt="{{ match.teams.home.name }}" class="img-fluid" style="max-height: 100px;">
-                    <h5 class="mt-2">{{ match.teams.home.name }}</h5>
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex align-items-center">
+                    <a href="{% url 'home' %}" class="btn btn-sm btn-outline-primary me-3">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <h5 class="mb-0">Match Details</h5>
                 </div>
-                <div class="col-4 text-center">
-                    <h3 class="mb-0">{{ match.goals.home }} - {{ match.goals.away }}</h3>
-                    <p class="text-muted">{{ match.fixture.status.long }}</p>
-                </div>
-                <div class="col-4 text-center">
-                    <img src="{{ match.teams.away.logo }}" alt="{{ match.teams.away.name }}" class="img-fluid" style="max-height: 100px;">
-                    <h5 class="mt-2">{{ match.teams.away.name }}</h5>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 text-center">
+                            <div class="team-info">
+                                <img src="{{ match.teams.home.logo }}" alt="{{ match.teams.home.name }}" class="team-logo">
+                                <h5 class="team-name mt-2">{{ match.teams.home.name }}</h5>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="match-info">
+                                <div class="match-time">
+                                    {% if match.fixture.status.short == 'FT' %}
+                                        <span class="badge bg-success">FT</span>
+                                    {% elif match.fixture.status.short == 'LIVE' %}
+                                        <span class="badge bg-danger">LIVE</span>
+                                    {% else %}
+                                        <span class="badge bg-primary">{{ match.fixture.status.short }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="match-score mt-2">
+                                    {% if match.goals.home is not None and match.goals.away is not None %}
+                                        <h2 class="mb-0">{{ match.goals.home }} - {{ match.goals.away }}</h2>
+                                    {% else %}
+                                        <h4 class="mb-0">{{ match.fixture.date|date:"H:i" }}</h4>
+                                    {% endif %}
+                                </div>
+                                <div class="match-date mt-1">
+                                    <small class="text-muted">{{ match.fixture.date|date:"d M Y" }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="team-info">
+                                <img src="{{ match.teams.away.logo }}" alt="{{ match.teams.away.name }}" class="team-logo">
+                                <h5 class="team-name mt-2">{{ match.teams.away.name }}</h5>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if match.statistics %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5 class="mb-3">Match Statistics</h5>
+                            {% for stat in match.statistics %}
+                                <div class="stat-row">
+                                    <div class="stat-name">{{ stat.name }}</div>
+                                    <div class="stat-value">
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 style="width: {{ stat.home_percentage }}%"
+                                                 aria-valuenow="{{ stat.home_percentage }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                                {{ stat.home }}
+                                            </div>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 style="width: {{ stat.away_percentage }}%"
+                                                 aria-valuenow="{{ stat.away_percentage }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                                {{ stat.away }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if match.events %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5 class="mb-3">Match Events</h5>
+                            <div class="timeline">
+                                {% for event in match.events %}
+                                    <div class="timeline-item">
+                                        <div class="timeline-marker {% if event.type == 'Goal' %}goal-marker{% elif event.type == 'Subst' %}subst-marker{% else %}default-marker{% endif %}">
+                                            {% if event.type == 'Card' %}
+                                                <i class="fas fa-square {% if event.detail == 'Yellow Card' %}card-yellow{% elif event.detail == 'Red Card' %}card-red{% endif %}"></i>
+                                            {% elif event.type == 'Goal' %}
+                                                <i class="fas fa-futbol"></i>
+                                            {% elif event.type == 'Subst' %}
+                                                <i class="fas fa-exchange-alt"></i>
+                                            {% else %}
+                                                <i class="fas fa-circle"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="timeline-content">
+                                            <div class="event-header">
+                                                <span class="event-time">{{ event.time }}'</span>
+                                                <span class="event-type">{{ event.type }}</span>
+                                            </div>
+                                            <div class="event-description">
+                                                {{ event.player.name }} 
+                                                {% if event.assist.name %}
+                                                    (Assist: {{ event.assist.name }})
+                                                {% endif %}
+                                                {% if event.detail %}
+                                                    - {{ event.detail }}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if match.statistics %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="stat-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color home"></div>
+                                    <span>{{ match.teams.home.name }}</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color away"></div>
+                                    <span>{{ match.teams.away.name }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Statistics Tab -->
-    <div class="card mt-4">
-        <div class="card-header">
-            <h5 class="mb-0">Match Statistics</h5>
-        </div>
-        <div class="card-body">
-            {% if match.statistics %}
-                <div class="stat-legend">
-                    <div class="legend-item">
-                        <div class="legend-color legend-home"></div>
-                        <span>{{ match.teams.home.name }}</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color legend-away"></div>
-                        <span>{{ match.teams.away.name }}</span>
-                    </div>
-                </div>
-                {% for stat in match.statistics %}
-                    {% if stat.name != 'Passes %' and stat.name != 'EXPECTED_GOALS'%}
-                        <div class="stat-row mb-4">
-                            <div class="row">
-                                <div class="col-12 text-center mb-2">
-                                    <span class="stat-name">{{ stat.name }}</span>
-                                </div>
-                            </div>
-                            <div class="row align-items-center">
-                                <div class="col-4 text-end">
-                                    <strong class="stat-value">{{ stat.home }}</strong>
-                                </div>
-                                <div class="col-4">
-                                    <div class="progress">
-                                        {% if stat.name == 'Ball Possession' %}
-                                            <div class="progress-bar bg-primary" role="progressbar" 
-                                                 style="width: {{ stat.home }}%" 
-                                                 aria-valuenow="{{ stat.home }}" 
-                                                 aria-valuemin="0" 
-                                                 aria-valuemax="100">
-                                            </div>
-                                            <div class="progress-bar bg-danger" role="progressbar" 
-                                                 style="width: {{ stat.away }}%" 
-                                                 aria-valuenow="{{ stat.away }}" 
-                                                 aria-valuemin="0" 
-                                                 aria-valuemax="100">
-                                            </div>
-                                        {% else %}
-                                            {% with total=stat.home|add:stat.away %}
-                                                {% if total > 0 %}
-                                                    {% with home_percent=stat.home|percentage:total away_percent=stat.away|percentage:total %}
-                                                        <div class="progress-bar bg-primary" role="progressbar" 
-                                                             style="width: {{ home_percent }}%" 
-                                                             aria-valuenow="{{ stat.home }}" 
-                                                             aria-valuemin="0" 
-                                                             aria-valuemax="{{ total }}">
-                                                        </div>
-                                                        <div class="progress-bar bg-danger" role="progressbar" 
-                                                             style="width: {{ away_percent }}%" 
-                                                             aria-valuenow="{{ stat.away }}" 
-                                                             aria-valuemin="0" 
-                                                             aria-valuemax="{{ total }}">
-                                                        </div>
-                                                    {% endwith %}
-                                                {% endif %}
-                                            {% endwith %}
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="col-4">
-                                    <strong class="stat-value">{{ stat.away }}</strong>
-                                </div>
-                            </div>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            {% else %}
-                <p class="text-center">No statistics available</p>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Events Tab -->
-    <div class="card mt-4">
-        <div class="card-header">
-            <h5 class="mb-0">Match Events</h5>
-        </div>
-        <div class="card-body">
-            {% if match.events %}
-                <div class="timeline">
-                    {% for event in match.events %}
-                        <div class="timeline-item">
-                            <div class="timeline-marker {% if event.type == 'Goal' %}goal-marker{% elif event.type == 'Card' %}card-marker{% elif event.type == 'Subst' %}subst-marker{% else %}default-marker{% endif %}">
-                                {% if event.type == 'Goal' %}
-                                    <i class="fas fa-futbol"></i>
-                                {% elif event.type == 'Card' %}
-                                    {% if 'Yellow' in event.description %}
-                                        <div class="card-icon card-yellow"></div>
-                                    {% else %}
-                                        <div class="card-icon card-red"></div>
-                                    {% endif %}
-                                {% elif event.type == 'Subst' %}
-                                    <i class="fas fa-exchange-alt"></i>
-                                {% else %}
-                                    <i class="fas fa-circle"></i>
-                                {% endif %}
-                            </div>
-                            <div class="timeline-content">
-                                <div class="event-header">
-                                    <span class="event-time">{{ event.time }}'</span>
-                                    <span class="event-type">{{ event.type }}</span>
-                                </div>
-                                <div class="event-description">
-                                    {{ event.description }}
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-center">No events available</p>
-            {% endif %}
-        </div>
-    </div>
 </div>
-
-<style>
-.stat-row {
-    padding: 10px 0;
-}
-
-.stat-name {
-    font-size: 0.9rem;
-    color: #6c757d;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.stat-value {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #212529;
-}
-
-.progress {
-    height: 8px;
-    background-color: #e9ecef;
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.progress-bar {
-    transition: width 0.6s ease;
-}
-
-.progress-bar.bg-primary {
-    background-color: #007bff !important;
-}
-
-.progress-bar.bg-danger {
-    background-color: #dc3545 !important;
-}
-
-.timeline {
-    position: relative;
-    padding: 20px 0;
-}
-
-.timeline-item {
-    position: relative;
-    padding-left: 50px;
-    margin-bottom: 25px;
-}
-
-.timeline-marker {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.goal-marker {
-    border: 2px solid #28a745;
-    background: #fff;
-}
-
-.card-marker {
-    border: none;
-    background: transparent;
-    box-shadow: none;
-}
-
-.subst-marker {
-    border: 2px solid #17a2b8;
-    background: #fff;
-}
-
-.default-marker {
-    border: 2px solid #6c757d;
-    background: #f8f9fa;
-}
-
-.card-icon {
-    width: 24px;
-    height: 32px;
-    border-radius: 3px;
-    position: relative;
-}
-
-.card-yellow {
-    background: #ffc107;
-    border: 2px solid #ffc107;
-}
-
-.card-red {
-    background: #dc3545;
-    border: 2px solid #dc3545;
-}
-
-.timeline-marker i {
-    font-size: 1.2rem;
-}
-
-.timeline-marker.goal-marker i {
-    color: #28a745;
-}
-
-.timeline-marker.subst-marker i {
-    color: #17a2b8;
-    transform: scale(1.2);
-}
-
-.timeline-content {
-    background: #fff;
-    padding: 15px 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    border: 1px solid #e9ecef;
-}
-
-.event-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.event-time {
-    background: #f8f9fa;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-weight: 600;
-    color: #495057;
-    margin-right: 10px;
-}
-
-.event-type {
-    color: #6c757d;
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-.event-description {
-    color: #212529;
-    font-size: 1rem;
-    line-height: 1.4;
-}
-
-/* Add legend for team colors */
-.stat-legend {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-    gap: 20px;
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    font-size: 0.9rem;
-}
-
-.legend-color {
-    width: 16px;
-    height: 16px;
-    border-radius: 3px;
-    margin-right: 8px;
-}
-
-.legend-home {
-    background-color: #007bff;
-}
-
-.legend-away {
-    background-color: #dc3545;
-}
-</style>
 {% endblock %}

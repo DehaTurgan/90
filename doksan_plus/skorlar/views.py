@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404
 import requests
 from django.core.cache import cache
 from datetime import datetime, timedelta
+from .models import QuizQuestion
+import random
 
 BASE_URL = 'https://v3.football.api-sports.io'
 HEADERS = {
@@ -42,41 +44,53 @@ def fixtures_view(request):
             'league': name,
             'matches': data.get('response', [])
         })
-    return render(request, 'fixtures/home.html', {'all_fixtures': all_fixtures})
+
+    quiz_questions = QuizQuestion.objects.all()
+    quiz_question = random.choice(quiz_questions) if quiz_questions.exists() else None
+
+    user_lang = request.session.get('language', 'en')
+
+    if quiz_question:
+        quiz_data = {
+            'question': quiz_question.get_question(user_lang),
+            'option_a': quiz_question.get_option_a(user_lang),
+            'option_b': quiz_question.get_option_b(user_lang),
+            'correct_answer': quiz_question.correct_answer
+        }
+    else:
+        quiz_data = None
+
+    return render(request, 'fixtures/home.html', {
+        'all_fixtures': all_fixtures,
+        'quiz_question': quiz_data
+    })
 
 def match_detail_view(request, match_id):
-    # Try to get match data from cache
     cache_key = f'match_{match_id}'
     match_data = cache.get(cache_key)
     
     if not match_data:
-        # Fetch match details
         url = f'{BASE_URL}/fixtures?id={match_id}'
         response = requests.get(url, headers=HEADERS)
         match_data = response.json().get('response', [])[0]
         
-        # Fetch match statistics
         stats_url = f'{BASE_URL}/fixtures/statistics?fixture={match_id}'
         stats_response = requests.get(stats_url, headers=HEADERS)
         stats_data = stats_response.json().get('response', [])
         
         if stats_data:
-            # Process statistics
             home_stats = stats_data[0].get('statistics', [])
             away_stats = stats_data[1].get('statistics', [])
             
-            # Combine statistics
             combined_stats = []
             for home_stat in home_stats:
                 stat_name = home_stat.get('type')
                 home_value = home_stat.get('value')
                 away_value = next((stat.get('value') for stat in away_stats if stat.get('type') == stat_name), '-')
                 
-                # Convert percentage strings to numbers for possession
                 if stat_name == 'Ball Possession':
                     home_value = int(home_value.strip('%'))
                     away_value = int(away_value.strip('%'))
-                # Convert other string values to numbers
                 elif isinstance(home_value, str) and home_value.isdigit():
                     home_value = int(home_value)
                 if isinstance(away_value, str) and away_value.isdigit():
@@ -90,7 +104,6 @@ def match_detail_view(request, match_id):
             
             match_data['statistics'] = combined_stats
         
-        # Fetch and process events
         events_url = f'{BASE_URL}/fixtures/events?fixture={match_id}'
         events_response = requests.get(events_url, headers=HEADERS)
         events_data = events_response.json().get('response', [])
@@ -104,7 +117,6 @@ def match_detail_view(request, match_id):
                 team = event.get('team', {}).get('name', '')
                 player = event.get('player', {}).get('name', '')
                 
-                # Format the event description
                 if event_type == 'Goal':
                     event_desc = f"{player} ({team})"
                 elif event_type == 'Card':
@@ -122,7 +134,6 @@ def match_detail_view(request, match_id):
             
             match_data['events'] = formatted_events
         
-        # Cache the match data
         cache.set(cache_key, match_data, timeout=3600)
     
     return render(request, 'fixtures/match_detail.html', {'match': match_data})
