@@ -2,8 +2,10 @@ services:
   - type: web
     name: doksan-plus
     env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn doksan_plus.wsgi:application
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+    startCommand: gunicorn doksan_plus.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.0
@@ -12,4 +14,8 @@ services:
       - key: WEB_CONCURRENCY
         value: 4
       - key: API_FOOTBALL_KEY
-        sync: false 
+        sync: false
+      - key: DEBUG
+        value: "False"
+      - key: PYTHONPATH
+        value: /opt/render/project/src 
