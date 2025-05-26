@@ -2,10 +2,332 @@
 
 {% block title %}Match Details - 90+{% endblock %}
 
-{% block extra_css %}
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/match_detail.css' %}">
-{% endblock %}
+<style>
+    .team-logo {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+    }
+
+    .team-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+
+    .match-info {
+        padding: 1rem;
+    }
+
+    .match-score {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+
+    .match-date {
+        color: #7f8c8d;
+    }
+
+    /* Statistics Section */
+    .statistics-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        margin-top: 2rem;
+    }
+
+    .statistics-section h5 {
+        color: #2c3e50;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f2f5;
+        font-size: 1.25rem;
+    }
+
+    .stat-row {
+        display: grid;
+        grid-template-columns: 80px 1fr 80px;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        align-items: center;
+        padding: 0.5rem;
+        transition: transform 0.2s ease;
+    }
+
+    .stat-row:hover {
+        transform: translateY(-2px);
+    }
+
+    .stat-name {
+        text-align: center;
+        font-weight: 600;
+        color: #64748b;
+        font-size: 0.9rem;
+        grid-column: 1 / -1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        display: flex;
+        position: relative;
+        height: 35px;
+        background: #f1f5f9;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .stat-home-value, .stat-away-value {
+        font-weight: 700;
+        color: #1e293b;
+        width: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+
+    .stat-bars {
+        position: relative;
+        flex: 1;
+        display: flex;
+    }
+
+    .stat-bar-home, .stat-bar-away {
+        height: 100%;
+        transition: width 0.6s ease-in-out;
+    }
+
+    .stat-bar-home {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        border-radius: 0 4px 4px 0;
+    }
+
+    .stat-bar-away {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        border-radius: 4px 0 0 4px;
+    }
+
+    /* Events Timeline */
+    .events-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        margin-top: 2rem;
+    }
+
+    .events-section h5 {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #f0f2f5;
+    }
+
+    .timeline {
+        position: relative;
+        padding: 2rem 0;
+        margin: 0 auto;
+        max-width: 800px;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2px;
+        height: calc(100% - 4rem);
+        background: linear-gradient(to bottom, transparent, #e9ecef 5%, #e9ecef 95%, transparent);
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: flex-start;
+        opacity: 0;
+        animation: fadeIn 0.5s ease forwards;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .timeline-marker {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 36px;
+        height: 36px;
+        background-color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        z-index: 2;
+        transition: transform 0.2s ease;
+    }
+
+    .timeline-item:hover .timeline-marker {
+        transform: translateX(-50%) scale(1.1);
+    }
+
+    .timeline-content {
+        width: 45%;
+        padding: 1rem 1.5rem;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease;
+    }
+
+    .timeline-item:hover .timeline-content {
+        transform: translateY(-2px);
+    }
+
+    .timeline-item:nth-child(odd) .timeline-content {
+        margin-right: auto;
+        margin-left: 0;
+    }
+
+    .timeline-item:nth-child(even) .timeline-content {
+        margin-left: auto;
+        margin-right: 0;
+    }
+
+    .event-header {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .event-time {
+        font-weight: 700;
+        color: #2c3e50;
+        background: #f8f9fa;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+    }
+
+    .event-type {
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        background-color: #e9ecef;
+        color: #495057;
+    }
+
+    .event-description {
+        color: #2c3e50;
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+
+    /* Event Icons */
+    .goal-marker i {
+        color: #27ae60;
+        font-size: 1.2rem;
+    }
+
+    .subst-marker i {
+        color: #f39c12;
+        font-size: 1.2rem;
+    }
+
+    .card-yellow {
+        color: #f1c40f;
+    }
+
+    .card-red {
+        color: #e74c3c;
+    }
+
+    /* Legend Styles */
+    .stat-legend {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 3rem;
+        padding: 1.5rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        font-weight: 500;
+    }
+
+    .legend-color {
+        width: 30px;
+        height: 6px;
+        border-radius: 3px;
+    }
+
+    .legend-color.home {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    .legend-color.away {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .timeline::before {
+            left: 30px;
+        }
+
+        .timeline-marker {
+            left: 30px;
+        }
+
+        .timeline-content {
+            width: calc(100% - 60px);
+            margin-left: 60px !important;
+        }
+
+        .statistics-section {
+            padding: 1.5rem;
+        }
+
+        .stat-row {
+            grid-template-columns: 60px 1fr 60px;
+            gap: 0.75rem;
+        }
+
+        .stat-home-value, .stat-away-value {
+            width: 60px;
+            font-size: 0.9rem;
+        }
+
+        .stat-legend {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.75rem;
+        }
+
+        .legend-item {
+            justify-content: center;
+        }
+    }
+</style>
 
 {% block content %}
 <div class="container">
@@ -13,7 +335,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex align-items-center">
-                    <a href="{% url 'home' %}" class="btn btn-sm btn-outline-primary me-3">
+                    <a href="{% url 'home' %}" class="btn btn-sm btn-outline-light me-3">
                         <i class="fas fa-arrow-left"></i>
                     </a>
                     <h5 class="mb-0">Match Details</h5>
@@ -58,91 +380,69 @@
                     </div>
 
                     {% if match.statistics %}
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <h5 class="mb-3">Match Statistics</h5>
-                            {% for stat in match.statistics %}
-                                <div class="stat-row">
-                                    <div class="stat-name">{{ stat.name }}</div>
-                                    <div class="stat-value">
-                                        <div class="progress">
-                                            <div class="progress-bar" role="progressbar" 
-                                                 style="width: {{ stat.home_percentage }}%"
-                                                 aria-valuenow="{{ stat.home_percentage }}" 
-                                                 aria-valuemin="0" 
-                                                 aria-valuemax="100">
-                                                {{ stat.home }}
-                                            </div>
-                                        </div>
-                                        <div class="progress">
-                                            <div class="progress-bar" role="progressbar" 
-                                                 style="width: {{ stat.away_percentage }}%"
-                                                 aria-valuenow="{{ stat.away_percentage }}" 
-                                                 aria-valuemin="0" 
-                                                 aria-valuemax="100">
-                                                {{ stat.away }}
-                                            </div>
-                                        </div>
+                    <div class="statistics-section">
+                        <h5><i class="fas fa-chart-bar me-2"></i>Match Statistics</h5>
+                        {% for stat in match.statistics %}
+                            <div class="stat-row">
+                                <div class="stat-name">{{ stat.name }}</div>
+                                <div class="stat-home-value">{{ stat.home }}</div>
+                                <div class="stat-value">
+                                    <div class="stat-bars">
+                                        <div class="stat-bar-home" style="width: {{ stat.home_percentage }}%"></div>
+                                        <div class="stat-bar-away" style="width: {{ stat.away_percentage }}%"></div>
                                     </div>
                                 </div>
-                            {% endfor %}
+                                <div class="stat-away-value">{{ stat.away }}</div>
+                            </div>
+                        {% endfor %}
+                        
+                        <div class="stat-legend">
+                            <div class="legend-item">
+                                <div class="legend-color home"></div>
+                                <span>{{ match.teams.home.name }}</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color away"></div>
+                                <span>{{ match.teams.away.name }}</span>
+                            </div>
                         </div>
                     </div>
                     {% endif %}
 
                     {% if match.events %}
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <h5 class="mb-3">Match Events</h5>
-                            <div class="timeline">
-                                {% for event in match.events %}
-                                    <div class="timeline-item">
-                                        <div class="timeline-marker {% if event.type == 'Goal' %}goal-marker{% elif event.type == 'Subst' %}subst-marker{% else %}default-marker{% endif %}">
-                                            {% if event.type == 'Card' %}
-                                                <i class="fas fa-square {% if event.detail == 'Yellow Card' %}card-yellow{% elif event.detail == 'Red Card' %}card-red{% endif %}"></i>
-                                            {% elif event.type == 'Goal' %}
-                                                <i class="fas fa-futbol"></i>
-                                            {% elif event.type == 'Subst' %}
-                                                <i class="fas fa-exchange-alt"></i>
-                                            {% else %}
-                                                <i class="fas fa-circle"></i>
+                    <div class="events-section">
+                        <h5><i class="fas fa-history me-2"></i>Match Events</h5>
+                        <div class="timeline">
+                            {% for event in match.events %}
+                                <div class="timeline-item">
+                                    <div class="timeline-marker {% if event.type == 'Goal' %}goal-marker{% elif event.type == 'Subst' %}subst-marker{% else %}default-marker{% endif %}">
+                                        {% if event.type == 'Card' %}
+                                            <i class="fas fa-square {% if event.detail == 'Yellow Card' %}card-yellow{% elif event.detail == 'Red Card' %}card-red{% endif %}"></i>
+                                        {% elif event.type == 'Goal' %}
+                                            <i class="fas fa-futbol"></i>
+                                        {% elif event.type == 'Subst' %}
+                                            <i class="fas fa-exchange-alt"></i>
+                                        {% else %}
+                                            <i class="fas fa-circle"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="timeline-content">
+                                        <div class="event-header">
+                                            <span class="event-time">{{ event.time }}'</span>
+                                            <span class="event-type">{{ event.type }}</span>
+                                        </div>
+                                        <div class="event-description">
+                                            {{ event.player.name }} 
+                                            {% if event.assist.name %}
+                                                <span class="text-muted">(Assist: {{ event.assist.name }})</span>
+                                            {% endif %}
+                                            {% if event.detail %}
+                                                <span class="text-muted">- {{ event.detail }}</span>
                                             {% endif %}
                                         </div>
-                                        <div class="timeline-content">
-                                            <div class="event-header">
-                                                <span class="event-time">{{ event.time }}'</span>
-                                                <span class="event-type">{{ event.type }}</span>
-                                            </div>
-                                            <div class="event-description">
-                                                {{ event.player.name }} 
-                                                {% if event.assist.name %}
-                                                    (Assist: {{ event.assist.name }})
-                                                {% endif %}
-                                                {% if event.detail %}
-                                                    - {{ event.detail }}
-                                                {% endif %}
-                                            </div>
-                                        </div>
                                     </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    {% if match.statistics %}
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <div class="stat-legend">
-                                <div class="legend-item">
-                                    <div class="legend-color home"></div>
-                                    <span>{{ match.teams.home.name }}</span>
                                 </div>
-                                <div class="legend-item">
-                                    <div class="legend-color away"></div>
-                                    <span>{{ match.teams.away.name }}</span>
-                                </div>
-                            </div>
+                            {% endfor %}
                         </div>
                     </div>
                     {% endif %}

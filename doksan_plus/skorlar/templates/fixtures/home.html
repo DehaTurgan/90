@@ -537,6 +537,45 @@
         background: rgba(255, 255, 255, 0.9);
         backdrop-filter: blur(10px);
     }
+
+    .favorite-star {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+        z-index: 1;
+        transition: all 0.3s ease;
+    }
+
+    .favorite-star i {
+        font-size: 20px;
+        color: #ccc;
+        transition: all 0.3s ease;
+    }
+
+    .favorite-star:hover i {
+        transform: scale(1.2);
+        color: #ffd700;
+    }
+
+    .favorite-star.active i {
+        color: #ffd700;
+    }
+
+    .match-card {
+        position: relative;
+        padding: 15px;
+        border-bottom: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+    }
+
+    .match-card:hover {
+        background-color: #f8f9fa;
+    }
+
+    .match-card:last-child {
+        border-bottom: none;
+    }
 </style>
 
 <button class="sidebar-toggle" onclick="toggleSidebar()">
