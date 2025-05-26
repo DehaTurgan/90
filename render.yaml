@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: doksan-plus
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn doksan_plus.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
+      - key: API_FOOTBALL_KEY
+        sync: false 
