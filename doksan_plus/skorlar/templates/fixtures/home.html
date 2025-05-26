@@ -537,6 +537,39 @@
         background: rgba(255, 255, 255, 0.9);
         backdrop-filter: blur(10px);
     }
+
+    .favorite-star {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        cursor: pointer;
+        z-index: 1;
+        transition: all 0.3s ease;
+    }
+
+    .favorite-star i {
+        font-size: 24px;
+        color: #ccc;
+        transition: all 0.3s ease;
+    }
+
+    .favorite-star:hover i {
+        transform: scale(1.1);
+    }
+
+    .favorite-star.active i {
+        color: #ffd700;
+    }
+
+    .match-card {
+        position: relative;
+        padding: 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        background: white;
+        transition: all 0.3s ease;
+    }
 </style>
 
 <button class="sidebar-toggle" onclick="toggleSidebar()">
@@ -556,6 +589,9 @@
                     <input type="text" class="search-input" placeholder="Away" id="team2Search">
                     <i class="fas fa-futbol"></i>
                 </div>
+            </div>
+            <div class="search-results">
+                <p id="matchCount" class="text-muted mb-0"></p>
             </div>
             <button type="submit" class="search-button">
                 <i class="fas fa-search"></i>
@@ -719,7 +755,8 @@ const translations = {
         favoriteMatches: "Favorite Matches",
         noFavorites: "No favorite matches selected",
         viewDetails: "View Details",
-        noMatches: "No matches found"
+        noMatches: "No matches found",
+        matchesFound: "matches found"
     },
     tr: {
         footballLeagues: "Futbol Ligleri",
@@ -730,7 +767,8 @@ const translations = {
         favoriteMatches: "Favori Maçlar",
         noFavorites: "Favori maç seçilmedi",
         viewDetails: "Detayları Gör",
-        noMatches: "Maç bulunamadı"
+        noMatches: "Maç bulunamadı",
+        matchesFound: "maç bulundu"
     }
 };
 
@@ -739,22 +777,29 @@ let currentLanguage = 'en';
 function updatePageContent(lang) {
     const t = translations[lang];
     
-    document.querySelector('.row.mb-4 h2').innerHTML = `<i class="fas fa-trophy me-2"></i>${t.footballLeagues}`;
-    
-    document.querySelector('#team1Search').placeholder = t.homeTeam;
-    document.querySelector('#team2Search').placeholder = t.awayTeam;
-    document.querySelector('.search-button').innerHTML = `<i class="fas fa-search me-2"></i>${t.searchMatches}`;
-    
-    document.querySelector('.favorite-matches-button').innerHTML = `<i class="fas fa-star me-2"></i>${t.favoriteMatches}`;
-    const noFavoritesElement = document.querySelector('#favoriteMatchesContent p');
-    if (noFavoritesElement) {
-        noFavoritesElement.textContent = t.noFavorites;
+    // Update page title
+    const pageTitle = document.querySelector('.row.mb-4 h2');
+    if (pageTitle) {
+        pageTitle.innerHTML = `<i class="fas fa-trophy me-2"></i>${t.footballLeagues}`;
     }
     
-    document.querySelector('.question-text').textContent = t.whichTeamWin;
-    document.querySelectorAll('.answer-box')[0].textContent = t.correct;
-    document.querySelectorAll('.answer-box')[1].textContent = t.wrong;
+    // Update search form
+    const team1Search = document.querySelector('#team1Search');
+    const team2Search = document.querySelector('#team2Search');
+    const searchButton = document.querySelector('.search-button');
     
+    if (team1Search) team1Search.placeholder = t.homeTeam;
+    if (team2Search) team2Search.placeholder = t.awayTeam;
+    if (searchButton) searchButton.innerHTML = `<i class="fas fa-search me-2"></i>${t.searchMatches}`;
+    
+    // Update favorite matches section
+    const favoriteButton = document.querySelector('.favorite-matches-button');
+    const noFavoritesElement = document.querySelector('#favoriteMatchesContent p');
+    
+    if (favoriteButton) favoriteButton.innerHTML = `<i class="fas fa-star me-2"></i>${t.favoriteMatches}`;
+    if (noFavoritesElement) noFavoritesElement.textContent = t.noFavorites;
+    
+    // Update match details buttons
     document.querySelectorAll('.match-footer .btn').forEach(btn => {
         btn.innerHTML = `<i class="fas fa-chart-bar me-1"></i> ${t.viewDetails}`;
     });
@@ -781,8 +826,10 @@ function changeLanguage(code, name) {
             'X-CSRFToken': getCookie('csrftoken')
         },
         body: JSON.stringify({ language: code })
-    }).then(() => {
-        window.location.reload();
+    }).then(response => {
+        if (response.ok) {
+            window.location.reload();
+        }
     });
 }
 
@@ -831,11 +878,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-
     matchSearchForm.addEventListener('submit', function(e) {
         e.preventDefault();
+        performSearch();
+    });
+
+    let searchTimeout;
+    [team1Search, team2Search].forEach(input => {
+        input.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(performSearch, 300);
+        });
+    });
+
+    function performSearch() {
         const team1Term = team1Search.value.toLowerCase();
         const team2Term = team2Search.value.toLowerCase();
+        let matchCount = 0;
 
         leagueSections.forEach(section => {
             section.style.display = 'block';
@@ -855,6 +914,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 (team1.includes(team2Term) || team2.includes(team2Term)));
 
             card.style.display = matchesTeams ? 'block' : 'none';
+            if (matchesTeams) matchCount++;
         });
 
         leagueSections.forEach(section => {
@@ -862,13 +922,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 .some(card => card.style.display === 'block');
             section.style.display = hasVisibleMatches ? 'block' : 'none';
         });
-    });
 
-    [team1Search, team2Search].forEach(input => {
-        input.addEventListener('input', function() {
-            matchSearchForm.dispatchEvent(new Event('submit'));
-        });
-    });
+        // Update match count display
+        const matchCountElement = document.getElementById('matchCount');
+        if (matchCountElement) {
+            matchCountElement.textContent = `${matchCount} ${translations[currentLanguage].matchesFound}`;
+        }
+    }
 
     const savedLanguage = localStorage.getItem('preferredLanguage');
     if (savedLanguage) {
