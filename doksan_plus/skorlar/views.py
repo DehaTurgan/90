@@ -4,6 +4,8 @@ from django.core.cache import cache
 from datetime import datetime, timedelta
 from .models import QuizQuestion
 import random
+from django.http import JsonResponse
+import json
 
 BASE_URL = 'https://v3.football.api-sports.io'
 HEADERS = {
@@ -137,3 +139,15 @@ def match_detail_view(request, match_id):
         cache.set(cache_key, match_data, timeout=3600)
     
     return render(request, 'fixtures/match_detail.html', {'match': match_data})
+
+def update_language(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            language = data.get('language')
+            if language in ['en', 'tr']:
+                request.session['language'] = language
+                return JsonResponse({'status': 'success'})
+        except:
+            pass
+    return JsonResponse({'status': 'error'}, status=400)
