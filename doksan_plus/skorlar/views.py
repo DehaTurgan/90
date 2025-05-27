@@ -98,10 +98,17 @@ def match_detail_view(request, match_id):
                 if isinstance(away_value, str) and away_value.isdigit():
                     away_value = int(away_value)
                 
+                # Calculate percentages for the stat bars
+                total = home_value + away_value if isinstance(home_value, (int, float)) and isinstance(away_value, (int, float)) else 0
+                home_percentage = int((home_value / total * 100)) if total > 0 else 50
+                away_percentage = int((away_value / total * 100)) if total > 0 else 50
+                
                 combined_stats.append({
                     'name': stat_name,
                     'home': home_value,
-                    'away': away_value
+                    'away': away_value,
+                    'home_percentage': home_percentage,
+                    'away_percentage': away_percentage
                 })
             
             match_data['statistics'] = combined_stats
@@ -118,20 +125,15 @@ def match_detail_view(request, match_id):
                 detail = event.get('detail', '')
                 team = event.get('team', {}).get('name', '')
                 player = event.get('player', {}).get('name', '')
-                
-                if event_type == 'Goal':
-                    event_desc = f"{player} ({team})"
-                elif event_type == 'Card':
-                    event_desc = f"{player} ({team}) - {detail}"
-                elif event_type == 'Subst':
-                    event_desc = f"{player} ({team})"
-                else:
-                    event_desc = f"{player} ({team}) - {detail}"
+                assist = event.get('assist', {})
                 
                 formatted_events.append({
                     'time': time,
                     'type': event_type,
-                    'description': event_desc
+                    'detail': detail,
+                    'team': team,
+                    'player': {'name': player},
+                    'assist': {'name': assist.get('name', '')}
                 })
             
             match_data['events'] = formatted_events
