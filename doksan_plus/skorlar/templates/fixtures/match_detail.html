@@ -2,6 +2,7 @@
 
 {% block title %}Match Details - 90+{% endblock %}
 
+{% block content %}
 <style>
     .team-logo {
         width: 80px;
@@ -93,21 +94,26 @@
         position: relative;
         flex: 1;
         display: flex;
+        justify-content: space-between;
+        min-height: 35px;
     }
 
     .stat-bar-home, .stat-bar-away {
         height: 100%;
         transition: width 0.6s ease-in-out;
+        min-width: 0;
     }
 
     .stat-bar-home {
         background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
         border-radius: 0 4px 4px 0;
+        margin-right: 2px;
     }
 
     .stat-bar-away {
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         border-radius: 4px 0 0 4px;
+        margin-left: 2px;
     }
 
     /* Events Timeline */
@@ -329,7 +335,6 @@
     }
 </style>
 
-{% block content %}
 <div class="container">
     <div class="row">
         <div class="col-12">

@@ -90,6 +90,10 @@ def match_detail_view(request, match_id):
                 home_value = home_stat.get('value')
                 away_value = next((stat.get('value') for stat in away_stats if stat.get('type') == stat_name), '-')
                 
+                # Debug print
+                print(f"Processing stat: {stat_name}")
+                print(f"Home value: {home_value}, Away value: {away_value}")
+                
                 if stat_name == 'Ball Possession':
                     home_value = int(home_value.strip('%'))
                     away_value = int(away_value.strip('%'))
@@ -102,6 +106,9 @@ def match_detail_view(request, match_id):
                 total = home_value + away_value if isinstance(home_value, (int, float)) and isinstance(away_value, (int, float)) else 0
                 home_percentage = int((home_value / total * 100)) if total > 0 else 50
                 away_percentage = int((away_value / total * 100)) if total > 0 else 50
+                
+                # Debug print
+                print(f"Calculated percentages - Home: {home_percentage}%, Away: {away_percentage}%")
                 
                 combined_stats.append({
                     'name': stat_name,
