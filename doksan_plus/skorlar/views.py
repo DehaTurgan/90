@@ -140,8 +140,11 @@ def match_detail_view(request, match_id):
                 player = event.get('player', {}).get('name', '')
                 assist = event.get('assist', {})
                 
+                # Format the time to show only the elapsed minutes
+                time_display = str(time) if isinstance(time, (int, str)) else ''
+                
                 formatted_events.append({
-                    'time': time,
+                    'time': time_display,
                     'type': event_type,
                     'detail': detail,
                     'team': team,

@@ -946,7 +946,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const themeToggle = document.getElementById('themeToggle');
     
     if (savedTheme === 'dark') {
-        themeToggle.textContent = 'Cream';
+        themeToggle.textContent = 'Dark';
         document.body.classList.add('dark-theme');
     } else {
         themeToggle.textContent = 'White';
@@ -1055,7 +1055,7 @@ function toggleTheme() {
     const body = document.body;
     
     if (themeToggle.textContent === 'White') {
-        themeToggle.textContent = 'Cream';
+        themeToggle.textContent = 'Dark';
         body.classList.add('dark-theme');
         localStorage.setItem('theme', 'dark');
     } else {
