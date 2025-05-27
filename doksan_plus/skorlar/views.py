@@ -104,11 +104,17 @@ def match_detail_view(request, match_id):
                 
                 # Calculate percentages for the stat bars
                 total = home_value + away_value if isinstance(home_value, (int, float)) and isinstance(away_value, (int, float)) else 0
-                home_percentage = int((home_value / total * 100)) if total > 0 else 50
-                away_percentage = int((away_value / total * 100)) if total > 0 else 50
+                if total > 0:
+                    home_percentage = int((home_value / total) * 100)
+                    away_percentage = int((away_value / total) * 100)
+                else:
+                    home_percentage = 50
+                    away_percentage = 50
                 
                 # Debug print
-                print(f"Calculated percentages - Home: {home_percentage}%, Away: {away_percentage}%")
+                print(f"Stat: {stat_name}")
+                print(f"Home: {home_value} ({home_percentage}%)")
+                print(f"Away: {away_value} ({away_percentage}%)")
                 
                 combined_stats.append({
                     'name': stat_name,
